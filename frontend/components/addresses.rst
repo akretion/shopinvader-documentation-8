@@ -3,7 +3,7 @@
 =========
 Addresses
 =========
-``store.addresses`` provide login user's addresses.
+``store.addresses`` provide to you logged user's addresses.
 
 ``Address`` object represent an customer address (for shipping or billing) or
 user data profile. Some attribute are only available for "profile" type address.
@@ -11,8 +11,8 @@ user data profile. Some attribute are only available for "profile" type address.
 ``with_scope``, ``paginate`` liquid tag are available with ``store.addresses``.
 
 A customer have only one "profile" type address.
-It isn't possible to update ``address_type`` value or remove address
-with "profile" type.
+It isn't possible to update ``address_type`` value or remove address with
+"profile" type.
 
 ------------------------
 Attributes
@@ -24,8 +24,8 @@ The ``store.addresses`` item has the following attributes:
   :header: "Name", "Type", "Desciption"
   :widths: 15, 15, 70
 
-  "id", "Integer", "Product's ID"
-  "address_type", "String", "profile for user profile data or address for shipping or invoice address"
+  "id", "Integer", Address ID"
+  "address_type", "String", "``profile`` for user data or ``address`` for shipping or invoice address"
   "city", "String", "City"
   "country", "Object", "Object with country id and name"
   "display_name", "String", "Address name (firstname and lastname)"
@@ -44,7 +44,7 @@ The ``store.addresses`` item has the following attributes:
 
 
 Example :
-  Display available shipping or billing addresses
+  Display available shipping or billing addresses of logged user
 
   .. code-block:: liquid
 
@@ -76,6 +76,7 @@ Example :
       </address>
     {% endwith_scope %}
 
+    A user have only one profile address.
 
 Actions
 =======
@@ -83,6 +84,13 @@ Actions
 --------------------------------
 Add  shipping or billing address
 --------------------------------
+
+To add an address to logged user's  address book you need to submit a form to
+"invader/address/create" action with all address paramaters required.
+
+``available_countries`` provide countries list set up to the store on Odoo.
+
+Only available if ``address_type`` is "address".
 
 *Controller* invader/address/create
 
@@ -143,6 +151,12 @@ HTML form to add address
 Update address
 --------------------------------
 
+To update an address you have to submit a form to
+"invader/address/<address id>/update" action with all address paramaters
+updated. ``<address id>`` represent the address ID.
+
+``available_countries`` provide countries list set up to the store on Odoo.
+
 *Controller* invader/address/<address id>/update
 
 HTML form to update address
@@ -200,6 +214,12 @@ HTML form to update address
 --------------------------------
 Remove address
 --------------------------------
+
+To remove an address you need to submit a form to
+"invader/address/<address id>/remove" action.
+``<address id>`` represent the address ID.
+
+Only available if ``address_type`` is "address".
 
 *Controller* invader/address/<address id>/remove
 

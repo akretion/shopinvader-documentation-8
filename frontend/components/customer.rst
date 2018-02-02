@@ -3,8 +3,8 @@
 Customer
 ========
 
-.. csv-table:: store.products attributes
-  :header: "Name", "Type", "Desciption"
-  :widths: 15, 15, 70
+``store.customer`` provide logged user data.  This is an alias of address with
+"profile" address type.
 
-  "objectID", "Integer", "Product's ID"
+See :ref:`store.addresses documentation <addresses>` for more information about
+address object.

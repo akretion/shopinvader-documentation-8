@@ -4,11 +4,12 @@ Store components
 
 .. toctree::
 
-  categories.rst
-  products.rst
-  cart.rst
-  customer.rst
   addresses.rst
+  cart.rst
+  categories.rst
+  customer.rst
+  notifications.rst
+  products.rst
 
 Shopinvader provides some new liquid variable to add e-commerce feature to LocomotiveCMS.
 
