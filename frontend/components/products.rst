@@ -7,9 +7,8 @@ Products
 Products are saleable item displayed in your shop.
 
 
-Products can be accessed in all Liquid templates via
-``store.products.store.products`` represent a collection of all products
-variants avalaible.
+Products can be accessed in all Liquid templates via ``store.products`.
+``store.products`` represent a collection of all products variants avalaible.
 
 This variable is a collection of product stored in Algolia.
 

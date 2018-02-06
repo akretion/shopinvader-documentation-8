@@ -5,8 +5,8 @@ Store components
 .. toctree::
 
   addresses.rst
-  cart.rst
   categories.rst
+  cart.rst
   customer.rst
   notifications.rst
   products.rst

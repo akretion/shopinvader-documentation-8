@@ -85,22 +85,28 @@ Actions
 Add  shipping or billing address
 --------------------------------
 
-To add an address to logged user's  address book you need to submit a form to
-"invader/address/create" action with all address paramaters required.
+To add an address to logged user's  address book you need to submit a form with
+specific parameters.
 
 ``available_countries`` provide countries list set up to the store on Odoo.
 
 Only available if ``address_type`` is "address".
 
-*Controller* invader/address/create
+.. csv-table:: HTML form input
+  :header: "Input name", "Value", "Desciption"
+  :widths: 15, 15, 70
+
+  "action_proxy", "addresses", "Shopinvader controller name"
+  "action_method", "post", "Method on controller"
+  "...", "", "All address attribute "
+
 
 HTML form to add address
   .. code-block:: html
 
-    <form method="POST" action="invader/address/create">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-      <input type="hidden" name="item_id" value="<Cart line ID>" />
+    <form method="POST" action="<your page>">
+      <input type="hidden" name="action_method" value="post" />
+      <input type="hidden" name="action_proxy" value="addresses" />
       <div>
         <label>
           Name <input type="text" name="name" value="" placeholder="Name"/>
@@ -151,21 +157,27 @@ HTML form to add address
 Update address
 --------------------------------
 
-To update an address you have to submit a form to
-"invader/address/<address id>/update" action with all address paramaters
+To update an address you have to submit a form with all address paramaters.
 updated. ``<address id>`` represent the address ID.
 
 ``available_countries`` provide countries list set up to the store on Odoo.
 
-*Controller* invader/address/<address id>/update
 
-HTML form to update address
+
+.. csv-table:: HTML form input
+  :header: "Input name", "Value", "Desciption"
+  :widths: 15, 15, 70
+
+  "action_proxy", "addresses/<address id>", "Shopinvader controller name"
+  "action_method", "put", "Method on controller"
+  "...", "", "All address attribute "
+
+HTML form to add address
   .. code-block:: html
 
-    <form method="POST" action="invader/address/<address id>/update">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-      <input type="hidden" name="item_id" value="<Cart line ID>" />
+    <form method="POST" action="<your page>">
+      <input type="hidden" name="action_method" value="put" />
+      <input type="hidden" name="action_proxy" value="addresses/<address id>" />
       <div>
         <label>
           Name <input type="text" name="name" value="" placeholder="Name"/>
@@ -211,6 +223,7 @@ HTML form to update address
       <input type="submit" value="Update"/>
     </form>
 
+
 --------------------------------
 Remove address
 --------------------------------
@@ -221,14 +234,20 @@ To remove an address you need to submit a form to
 
 Only available if ``address_type`` is "address".
 
-*Controller* invader/address/<address id>/remove
+.. csv-table:: HTML form input
+  :header: "Input name", "Value", "Desciption"
+  :widths: 15, 15, 70
+
+  "action_proxy", "addresses/<address id>", "Shopinvader controller name"
+  "action_method", "delete", "Method on controller"
+
+
 
 HTML form to remove address
   .. code-block:: html
 
-    <form method="POST" action="invader/address/<address id>/remove">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-      ...
+    <form method="POST" action="<your page>">
+      <input type="hidden" name="action_method" value="delete" />
+      <input type="hidden" name="action_proxy" value="addresses/<address id>" />
       <input type="submit" value="Remove"/>
     </form>

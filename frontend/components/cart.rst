@@ -1,17 +1,10 @@
 ====
 Cart
 ====
-``store.cart`` provides you the current cart. This variable is only available
-after the add to cart action. ``store.cart`` allow cart lines with product data,
-shipping address, delivery mode, Cart is stored and managed directly via odoo.
-To avoid performance problems, cart data are cached, each cart updating
-(add new product, set a shipping address…) refresh cached datas via an Odoo
-API call.
-
-Each cart update recalculate grand total, subtotal, shipping cost and VAT
-amount automatically.
-
-To validate a cart you need to have a logged user.
+store.cart provides you the current cart. this variable is only available after add to cart action.
+store.cart allow cart lines with product data, shipping address, delivery mode,
+Carts are store in odoo database. To avoid performance problems, cart data are cached, each cart updating (add new product, set a shipping address…) refresh cached datas via an Odoo API call.
+Each cart update recalculate grand total, subtotal, shipping cost and VAT amount automatically.
 
 Attributes
 ==========
@@ -30,11 +23,11 @@ Cart header
   "amount_total",	"Float", "Grand total"
   "amount_untaxed",	"Float", "Total without taxes"
   "available_carriers", "Array", "Collection of carrier *See carrier documentation below*"
-  "available_payment_method", "Array", "Collection of payment method, see :ref:`cart_payment_method` doc"
+  "available_payment_method_ids", "Array", "Collection of payment method *See payment documentation below*"
   "carrier", "Object", "Carrier selected"
-  "current_step", "String", "Cart Step, see :ref:`cart_checkout` doc"
+  "current_step", "String", "Cart Step, *See cart step documentation below*"
   "date_order", "Date", "The creation cart date"
-  "done_steps", "Array", "The list of step previously done  see :ref:`cart_lines` documentation"
+  "done_steps", "Array", "The list of step previously done  *See cart step documentation below*"
   "id", "Integer", "Cart ID"
   "item_amount_tax", "Float", "VAT amout of Item subtotal (sum of product's VAT)"
   "item_amount_total", "Float", "Product subtotal  (sum of product's total without shippment)"
@@ -43,9 +36,9 @@ Cart header
   "name", "String", "Cart reference"
   "order_line", "Array", "Cart lines See :ref:`cart_lines` documentation"
   "partner", "Object", "Cart's customer"
-  "partner_invoice", "Object", "Invoice address, see :ref:`cart_address` doc"
-  "partner_shipping", "Object", "Shipping address, see :ref:`cart_address` doc"
-  "payment_method",  "Object", "Payment method selected, see :ref:`cart_payment_method` doc"
+  "partner_invoice", "Object", "Invoice address"
+  "partner_shipping", "Object", "Shipping address"
+  "payment_method",  "Object", "Payment method selected"
   "state",  "String", "Odoo sale order status"
   "shipping_amount_tax",  "Float", "Shipping VAT amout"
   "shipping_amount_untaxed",  "Float", "Shipping cost without VAT"
@@ -58,28 +51,30 @@ Actions
 ==========
 
 Some actions are available to manage cart content. Cart actions use html form.
-Each action need form submitting with specific parameters and action attribute
-value.
+Each action need form submitting with specific parameters.
 
 Usally, we use hidden input to specify these parameters values.
 
 You have to use get or post for form method. All actions require
-``invader_success_url`` and ``invader_error_url`` parameters to defined URL page
-use for redirection in case of success or error.
+``action_proxy`` and ``action_method``.
 
-The action form attribute is use to specify a Shopinvader controller (
-invader/cart/update, invader/cart/add_item...)
+``action_proxy`` is use to specify Shopinvader controller
+(cart, cart/item, addresses...)
 
+``action_method`` is use to specify method apply to  Shopinvader controller
+
+action_method html variable is use
+to specify method on the shopinvader controller in the same way as REST API.
 
 .. note::
-  POST or GET form method will have the same effect.
+  Due to Chrome restriction on form method authorized, Shopinvader html form
+  can't use form attribute method to specify ``DELETE``, ``POST``, ``GET``,
+  ``PUT`` method use on shopinvader controller, ``action_method``
+  replace form method role.
 
-.. _cart_checkout:
-
-----------------------
-Checkout step process
-----------------------
-
+-------------------
+Checkout process
+-------------------
 Actually Shopinvader use muli-page checkout.
 To move from one step to the next you need to submit a HTML form with specific
 parameters to indicate the current and the next checkout step.
@@ -97,31 +92,29 @@ Usally we recommended these cart steps :
 You have to set up your cart steps into odoo backend configuration.
 
 .. csv-table:: HTML form input
-  :header: "Input name", "Type", "Desciption"
+  :header: "Input name", "Value", "Desciption"
   :widths: 15, 15, 70
 
-  "invader_success_url", "String", "Shopinvader cart controller name"
-  "invader_error_url", "String", "Method on controller"
-  "current_step", "String", "current step ID"
-  "next_step", "String", "next step ID"
+  "action_proxy", "cart", "Shopinvader cart controller name"
+  "action_method", "put", "Method on controller"
+  "current_step", "", "current step ID"
+  "next_step", "", "next step ID"
 
-form submitting on invader/cart/update may be combined various actions like
-shipping address, shipping method in the same time.
+You can submit other cart controller parameters like shipping address, shipping method in the same time.
+
 
 HTML form to go to the next step
   .. code-block:: html
 
-    <form method="post" action="invader/cart/update">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
+    <form method="post" action="<next step URL page >">
+      <input type="hidden" name="action_proxy" value="cart">
+      <input type="hidden" name="action_method" value="PUT">
       <input type="hidden" name="current_step" value="cart_index">
       <input type="hidden" name="next_step" value="cart_login">
-      <input type="submit" value="Update address"/>
+      <input type="submit"/>
     </form>
 
 
-
-.. _cart_address:
 
 ------------------------------------
 Select Shipping and billing address
@@ -131,124 +124,28 @@ In your cart a customer can enter two addresses: billing address or shipping
 address.
 
 shipping and billing address are an item of ``store.addresses``. ``store.addresses``
-collection (:ref:`see store.addresses documentation <addresses>`).
-
-Set true to ``use_different_invoice_address`` parameter for different billing
-and shipping addresses.
-
-
-*Controller* invader/cart/update
-
-.. csv-table:: HTML form input
-  :header: "Input name", "Type", "Desciption"
-  :widths: 15, 15, 70
-
-  "invader_success_url", "String", "Shopinvader cart controller name"
-  "invader_error_url", "String", "Method on controller"
-  "partner_shipping", "integer", "Address ID, address list provided by ``store.addresses``"
-  "partner_invoice", "integer", "Address ID, address list provided by ``store.addresses``"
-
-HTML form to choose shipping
-  .. code-block:: html
-
-    <form method="post" action="invader/cart/update">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-      <input type="hidden" name="use_different_invoice_address" value="true" />
-      <div>
-        <h2>Select shipping address</h2>
-        {% with_scope  address_type: "address" %}
-          {% for address in store.addresses %}
-            <div>
-              <input type="radio" name="partner_shipping" value="{{address.id}}"/>
-              {{address.display_name}}
-            </div>
-          {% endfor %}
-        {% endwith_scope %}
-      </div>
-      <div>
-        <h2>Select billing address</h2>
-        {% with_scope  address_type: "address" %}
-          {% for address in store.addresses %}
-            <div>
-              <input type="radio" name="partner_invoice" value="{{address.id}}"/>
-              {{address.display_name}}
-            </div>
-          {% endfor %}
-        {% endwith_scope %}
-      </div>
-      <input type="submit" value="Update"/>
-    </form>
-
-
-.. _cart_shipping_method:
+collection (: :ref:`see store.addresses documentation <addresses>`).
 
 ------------------------
 Select shipping method
 ------------------------
 
-*Controller* invader/cart/update
-
-.. csv-table:: HTML form input
-  :header: "Input name", "Type", "Desciption"
-  :widths: 15, 15, 70
-
-  "invader_success_url", "String", "Shopinvader cart controller name"
-  "invader_error_url", "String", "Method on controller"
-  "partner_shipping", "integer", "Address ID, address list provided by ``store.addresses``"
-  "partner_invoice", "integer", "Address ID, address list provided by ``store.addresses``"
-
-
-``store.cart.available_carriers`` provide carrier list.
-
-HTML form to go to the next step
+HTML form to add product in cart
   .. code-block:: html
 
-    <form method="post" action="invader/cart/update">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-
-      {%for carrier in store.cart.available_carriers%}
-        <div>
-          <input type="radio" name="carrier" value="{{carrier.id}}"/>
-          <b>{{carrier.name}}</b>
-        </div>
-      {% endfor %}
-
-      <input type="submit" value="Select carrier"/>
+    <form method="POST" action="_invader/cart/update">
+      <input type="hidden" name="partner_shipping" value="<id>" />
+      <input type="submit"/>
     </form>
-
-
-.. _cart_payment_method:
 
 ------------------------
 Select payment method
 ------------------------
 
-*Controller* invader/cart/update
-
-``store.cart.available_payment_method`` provide carrier list.
-
-HTML form to go to the next step
-  .. code-block:: html
-
-    <form method="post" action="invader/cart/update">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-
-      {%for payment_method in store.cart.available_payment_method%}
-        <div>
-          <input type="radio" name="payment_method" value="{{payment_method.id}}"/>
-          <b>{{payment_method.name}}</b>
-        </div>
-      {% endfor %}
-
-      <input type="submit" value="Select payment method"/>
-    </form>
-
-
 
 .. _cart_lines:
+
+
 
 ==========
 Cart item
@@ -328,28 +225,25 @@ Actions
 Add product to cart
 -------------------
 
-*Controller* invader/cart/add_item
-
 .. csv-table:: HTML form input
   :header: "Input name", "Value", "Desciption"
   :widths: 15, 15, 70
 
-  "invader_success_url", "string", "URL in case of success"
-  "invader_error_url", "string", "URL in case of error"
-  "product_id", "integer", "``ObjectID`` of product added to cart "
-  "item_qty", "integer", "Product quantity added to cart"
+  "action_proxy", "cart/item", "Shopinvader controller name"
+  "action_method", "post", "Method on controller"
+  "product_id", "", "``ObjectID`` of product added to cart "
+  "item_qty", "", "Product quantity added to cart"
 
 
 HTML form to add product in cart
   .. code-block:: html
 
-    <form method="POST" action="invader/cart/add_item">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
+    <form method="POST" action="post">
+      <input type="hidden" name="action_proxy" value="cart/item" />
+      <input type="hidden" name="action_method" value="post" />
       <input type="hidden" name="product_id" value="<product.ObjectID>" />
-      <input type="number" name="item_qty" value="1"  step="1" min="0" max="10"/>
-      ...
-      <input type="submit" value="Add product"/>
+      <input type="hidden" name="item_qty" value="1" />
+      <input type="submit"/>
     </form>
 
 -------------------
@@ -357,28 +251,26 @@ Update quantity
 -------------------
 This action is usally used in cart item list.
 
-*Controller* invader/cart/update_item
 
 .. csv-table:: HTML form input
   :header: "Input name", "Value", "Desciption"
   :widths: 15, 15, 70
 
-  "invader_success_url", "string", "URL in case of success"
-  "invader_error_url", "string", "URL in case of error"
-  "item_id", "integer", "cart line ID"
-  "item_qty", "integer", "New product quantity"
+  "action_proxy", "cart/item", "Shopinvader controller name"
+  "action_method", "put", "Method on controller"
+  "product_id", "", "``ObjectID`` of product added to cart "
+  "item_qty", "", "Product quantity added to cart"
 
 
 HTML form to change product quantity
   .. code-block:: html
 
-    <form method="POST" action="invader/cart/update_item">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-      <input type="hidden" name="item_id" value="<Cart line ID>" />
-      <input type="number" name="item_qty" value="1"  step="1" min="0" max="10"/>
-      ...
-      <input type="submit" value="Change quantity"/>
+    <form method="POST" action="post">
+      <input type="hidden" name="action_proxy" value="cart/item" />
+      <input type="hidden" name="action_method" value="put" />
+      <input type="hidden" name="product_id" value="<product.ObjectID>" />
+      <input type="hidden" name="item_qty" value="1" />
+      <button type="submit"/>
     </form>
 
 ------------------------
@@ -389,18 +281,17 @@ Remove product to cart
   :header: "Input name", "Value", "Desciption"
   :widths: 15, 15, 70
 
-  "invader_success_url", "string", "URL in case of success"
-  "invader_error_url", "string", "URL in case of error"
-  "item_id", "integer", "cart line ID"
+  "action_proxy", "cart/item", "Shopinvader controller name"
+  "action_method", "delete", "Method on controller"
+  "item_id", "", "cart line ID "
 
 
 HTML form to remove cart line
   .. code-block:: html
 
-    <form method="POST" action="invader/cart/delete_item">
-      <input type="hidden" name="invader_success_url" value="<URL success page>" />
-      <input type="hidden" name="invader_error_url" value="<URL error page>" />
-      <input type="hidden" name="item_id" value="<Cart line ID>" />
-      ...
-      <input type="submit" value="Remove line"/>
+    <form method="POST" action="post">
+      <input type="hidden" name="action_proxy" value="cart/item" />
+      <input type="hidden" name="action_method" value="delete" />
+      <input type="hidden" name="item_id" value="<cart_line id>" />
+      <button type="submit"/>
     </form>
