@@ -54,7 +54,7 @@ author = u'Akretion'
 # built documents.
 #
 # The short X.Y version.
-version = u'1'
+version = u'for odoo 8'
 # The full version, including alpha/beta/rc tags.
 release = u'1'
 
